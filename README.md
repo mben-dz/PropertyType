@@ -1,5 +1,6 @@
 # PropertyType
- Helper Class to Get Property Type (useful in OOP to parse datatype correctly)
+
+ TObject Class Helper to Get Property Type (useful in OOP to parse datatype correctly)
 
  ![](PropertyTypeDpr.png)
 
