@@ -1,0 +1,47 @@
+program PropertyType;
+
+{$APPTYPE CONSOLE}
+
+{$R *.res}
+
+uses
+  System.SysUtils
+, API.Types in 'API\API.Types.pas'
+, System.TypInfo // Calling [GetEnumName] ..
+  ;
+
+type
+  TMyClass = class
+  private
+    fSomeIntegerField: Integer;
+    fSomeStringField: string;
+  public
+    property Prop_Int: Integer read fSomeIntegerField write fSomeIntegerField;
+    property Prop_Str: string read fSomeStringField write fSomeStringField;
+  end;
+
+var
+  L_MyObject: TMyClass;
+  L_TypeKind: TTypeKind;
+begin
+
+  try
+    L_MyObject := TMyClass.Create;
+    try
+      L_TypeKind := L_MyObject.Get_PropertyType('Prop_Int');
+      Write('[Prop_Int] Property is : ' +GetEnumName(TypeInfo(TTypeKind), Ord(L_TypeKind))); // Output: tkInteger
+      Writeln(' <=> ' +L_TypeKind.ToString);
+
+      L_TypeKind := L_MyObject.Get_PropertyType('Prop_Str');
+      Writeln('[Prop_Str] Property is : ' +GetEnumName(TypeInfo(TTypeKind), Ord(L_TypeKind))); // Output: tkUString
+      Writeln(' <=> ' +L_TypeKind.ToString);
+    finally
+      L_MyObject.Free;
+    end;
+  except
+    on E: Exception do
+      Writeln(E.ClassName, ': ', E.Message);
+  end;
+
+  Readln;
+end.

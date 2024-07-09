@@ -1,0 +1,45 @@
+program PropertyType;
+
+{$APPTYPE CONSOLE}
+
+{$R *.res}
+
+uses
+  System.SysUtils
+, API.Types in 'API\API.Types.pas'
+, System.TypInfo // Calling [GetEnumName] ..
+  ;
+
+type
+  TMyClass = class
+  private
+    FSomeInteger: Integer;
+    FSomeString: string;
+  public
+    property SomeInteger: Integer read FSomeInteger write FSomeInteger;
+    property SomeString: string read FSomeString write FSomeString;
+  end;
+
+var
+  L_MyObject: TMyClass;
+  L_TypeKind: TTypeKind;
+begin
+
+  try
+    L_MyObject := TMyClass.Create;
+    try
+      L_TypeKind := L_MyObject.Get_PropertyType('SomeInteger');
+      Writeln(GetEnumName(TypeInfo(TTypeKind), Ord(L_TypeKind))); // Output: tkInteger
+
+      L_TypeKind := L_MyObject.Get_PropertyType('SomeString');
+      Writeln(GetEnumName(TypeInfo(TTypeKind), Ord(L_TypeKind))); // Output: tkUString
+    finally
+      L_MyObject.Free;
+    end;
+  except
+    on E: Exception do
+      Writeln(E.ClassName, ': ', E.Message);
+  end;
+
+  Readln;
+end.

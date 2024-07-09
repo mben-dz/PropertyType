@@ -1,0 +1,80 @@
+unit API.Types;
+
+interface
+
+uses
+  Data.Bind.ObjectScope
+, System.Rtti
+  ;
+
+type
+  TSort = (sNone, sAsc, sDes);
+
+  TObjectHelper = class helper for TObject
+  public
+    function Get_PropertyType(const aPropertyName: string): TTypeKind;
+  end;
+
+  TTypeKindHelper = record helper for TTypeKind
+    function ToGeneratorFieldType: TGeneratorFieldType;
+    function ToString: string;
+  end;
+
+implementation
+
+//uses
+//  System.Classes
+//, System.TypInfo
+//, System.SysUtils
+//, System.Generics.Collections
+//, Vcl.Dialogs
+//  ;
+
+const
+  TypeKindNames: array[TTypeKind] of string = (
+    'Unknown', 'Integer', 'Char', 'Enumeration', 'Float', 'String', 'Set',
+    'Class', 'Method', 'WideChar', 'LongString', 'WideString', 'Variant',
+    'Array', 'Record', 'Interface', 'Int64', 'DynamicArray', 'UnicodeString',
+    'ClassReference', 'Pointer', 'Procedure', 'ManagedRecord'
+  );
+
+function TTypeKindHelper.ToString: string;
+begin
+  Result := TypeKindNames[Self];
+end;
+
+{ TObject }
+
+function TObjectHelper.Get_PropertyType(const aPropertyName: string): TTypeKind;
+var
+  Context: TRttiContext;
+  RttiType: TRttiType;
+  RttiProp: TRttiProperty;
+begin
+  Context := TRttiContext.Create;
+  try
+    RttiType := Context.GetType(Self.ClassType);
+    RttiProp := RttiType.GetProperty(aPropertyName);
+    if Assigned(RttiProp) then
+      Result := RttiProp.PropertyType.TypeKind
+    else
+      raise Exception.CreateFmt('Property "%s" not found', [aPropertyName]);
+  finally
+    Context.Free;
+  end;
+end;
+
+{ TTypeKindHelper }
+
+function TTypeKindHelper.ToGeneratorFieldType: TGeneratorFieldType;
+var
+  L_Value  : TValue;
+  L_Variant: Variant;
+begin
+  L_Variant := Self;
+  L_Value   := TValue.FromVariant(L_Variant);
+
+  Result := TGeneratorFieldType(L_Variant);
+end;
+
+end.
